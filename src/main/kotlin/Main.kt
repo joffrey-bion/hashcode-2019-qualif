@@ -24,8 +24,11 @@ class Problem(
         val slides = hPhotos.map { HSlide(it) } + vSlides
         println("${slides.size} slides")
 
-        val slideshows = slides.chunked(1000) { chunk ->
-            async { buildSlideShow(chunk) }
+        val slideshows = slides.chunked(1000) {
+            val chunk = ArrayList(it)
+            async {
+                buildSlideShow(chunk)
+            }
         }.map { it.await() }
         val slideshow = slideshows.flatten()
 
