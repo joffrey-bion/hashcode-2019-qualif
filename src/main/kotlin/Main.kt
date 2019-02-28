@@ -1,12 +1,15 @@
 import kotlinx.coroutines.runBlocking
 import org.hildan.hashcode.utils.solveHCFilesInParallel
 import java.util.*
+import kotlinx.coroutines.async
+import kotlinx.coroutines.coroutineScope
 
 fun main(args: Array<String>) = runBlocking {
     solveHCFilesInParallel(*args) {
         readProblem().solve()
     }
 }
+
 enum class Orientation { HORIZONTAL, VERTICAL }
 
 class Problem(
@@ -15,12 +18,26 @@ class Problem(
     val hPhotos = photos.filter { it.orientation == Orientation.HORIZONTAL }.sortedByDescending { it.tags.size }
     val vPhotos = photos.filter { it.orientation == Orientation.VERTICAL }.sortedByDescending { it.tags.size }
 
-    fun solve(): List<String> {
+    suspend fun solve(): List<String> = coroutineScope {
         val vSlides = pairVPics(vPhotos)
         println("${vSlides.size} vertical slides")
         val slides = hPhotos.map { HSlide(it) } + vSlides
         println("${slides.size} slides")
 
+        val slideshows = slides.chunked(1000) { chunk ->
+            async { buildSlideShow(chunk) }
+        }.map { it.await() }
+        val slideshow = slideshows.flatten()
+
+        println("Slideshow built")
+
+        val lines = mutableListOf<String>()
+        lines.add("${slideshow.size}")
+        lines.addAll(slideshow.map { it.toOutput() })
+        lines
+    }
+
+    private fun buildSlideShow(slides: List<Slide>): MutableList<Slide> {
         println("Computing points for pairs...")
         val pointsPerSlidePair = computePairPoints(slides)
         println("Points computed for pairs")
@@ -38,13 +55,7 @@ class Problem(
             next.slide.used = true
             slideshow.add(next.slide)
         }
-
-        println("Slideshow built")
-
-        val lines = mutableListOf<String>()
-        lines.add("${slideshow.size}")
-        lines.addAll(slideshow.map { it.toOutput() })
-        return lines
+        return slideshow
     }
 
     private fun getBestNext(
