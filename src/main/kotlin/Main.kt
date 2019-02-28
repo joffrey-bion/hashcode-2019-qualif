@@ -51,13 +51,14 @@ class Problem(
     }
 
     private fun computePairPoints(slides: List<Slide>): Map<Slide, PriorityQueue<EvaluatedSlide>> {
+        val comparator = compareByDescending<EvaluatedSlide> { it.points }
         val pointsPerSlidePair: MutableMap<Slide, PriorityQueue<EvaluatedSlide>> = mutableMapOf()
         for (i1 in slides.indices) {
             val s1 = slides[i1]
             for (i2 in (i1 + 1) until slides.size) {
                 val s2 = slides[i2]
-                val s1Queue = pointsPerSlidePair.getOrPut(s1) { PriorityQueue() }
-                val s2Queue = pointsPerSlidePair.getOrPut(s2) { PriorityQueue() }
+                val s1Queue = pointsPerSlidePair.getOrPut(s1) { PriorityQueue(comparator) }
+                val s2Queue = pointsPerSlidePair.getOrPut(s2) { PriorityQueue(comparator) }
                 val points = computePoints(s1, s2)
                 s1Queue.add(EvaluatedSlide(s2,  points))
                 s2Queue.add(EvaluatedSlide(s1,  points))
@@ -80,6 +81,9 @@ private fun pairVPics(vPics: List<Photo>): List<VSlide> {
     val takenPics = HashSet<Int>()
     val vSlides = mutableListOf<VSlide>()
     for (p in vPics) {
+        if (p.id in takenPics) {
+            continue
+        }
         takenPics.add(p.id)
         val bestSlide = pairUp(p, vPics, takenPics)
         takenPics.add(bestSlide.pic2.id)
@@ -92,7 +96,11 @@ private fun pairUp(p: Photo, vPics: List<Photo>, takenPics: Set<Int>): VSlide {
     var bestSize = 0
     var bestMate: Photo? = null
     var bestTags: Set<String>? = null
-    vPics.filterNot { it.id in takenPics }.forEach {
+    for (it in vPics) {
+        if (it.id in takenPics) {
+            continue
+        }
+
         val unionTags = (p.tags + it.tags)
         if (unionTags.size == p.tags.size + it.tags.size) {
             return VSlide(p, it, unionTags)
