@@ -24,7 +24,9 @@ class Problem(
 
         val slideshow = mutableListOf<Slide>()
 
-        slideshow.add(slides[0])
+        val firstSlide = slides.first()
+        firstSlide.used = true
+        slideshow.add(firstSlide)
 
         while (true) {
             val s = slideshow.last()
