@@ -1,0 +1,18 @@
+
+task srcZip(type: Zip, dependsOn: tasks.build) {
+    classifier = 'src'
+    from sourceSets*.allSource
+    destinationDir file("$rootDir/outputs/")
+}
+
+task generateOutputs(type: JavaExec, dependsOn: tasks.build) {
+    args("inputs/a_example.in", "inputs/b_should_be_easy.in", "inputs/c_no_hurry.in", "inputs/d_metropolis.in",
+            "inputs/e_high_bonus.in")
+    description = "Hashcode output generation"
+    main = project.mainClassName
+    classpath = sourceSets.main.runtimeClasspath
+}
+
+task submit(dependsOn: [tasks.srcZip, tasks.generateOutputs]) {}
+tasks.generateOutputs.mustRunAfter(tasks.srcZip)
+
