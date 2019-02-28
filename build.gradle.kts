@@ -9,6 +9,10 @@ group = "org.hildan.hashcode"
 version = "0.3.0"
 description = "Utilities for programs solving Google HashCode problems"
 
+application {
+    mainClassName = "MainKt"
+}
+
 repositories {
     jcenter()
 }
