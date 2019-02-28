@@ -1,11 +1,9 @@
-import org.hildan.hashcode.utils.solveHCProblemAndWriteFile
-import java.nio.file.Paths
+import kotlinx.coroutines.runBlocking
+import org.hildan.hashcode.utils.solveHCFilesInParallel
 import java.util.*
 
-fun main(args: Array<String>) {
-    val inputPath = Paths.get("inputs/a_example.txt")
-    val outputPath = Paths.get("outputs/a_example.txt")
-    solveHCProblemAndWriteFile(inputPath, outputPath) {
+fun main(args: Array<String>) = runBlocking {
+    solveHCFilesInParallel(*args) {
         readProblem().solve()
     }
 }
@@ -19,9 +17,15 @@ class Problem(
 
     fun solve(): List<String> {
         val vSlides = pairVPics(vPhotos)
+        println("${vSlides.size} vertical slides")
         val slides = hPhotos.map { HSlide(it) } + vSlides
-        val pointsPerSlidePair = computePairPoints(slides)
+        println("${slides.size} slides")
 
+        println("Computing points for pairs...")
+        val pointsPerSlidePair = computePairPoints(slides)
+        println("Points computed for pairs")
+
+        println("Building slideshow...")
         val slideshow = mutableListOf<Slide>()
 
         val firstSlide = slides.first()
@@ -32,7 +36,10 @@ class Problem(
             val s = slideshow.last()
             val next = getBestNext(pointsPerSlidePair[s]!!) ?: break
             next.slide.used = true
+            slideshow.add(next.slide)
         }
+
+        println("Slideshow built")
 
         val lines = mutableListOf<String>()
         lines.add("${slideshow.size}")

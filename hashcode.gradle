@@ -6,8 +6,13 @@ task srcZip(type: Zip, dependsOn: tasks.build) {
 }
 
 task generateOutputs(type: JavaExec, dependsOn: tasks.build) {
-    args("inputs/a_example.in", "inputs/b_should_be_easy.in", "inputs/c_no_hurry.in", "inputs/d_metropolis.in",
-            "inputs/e_high_bonus.in")
+    args(
+            "inputs/a_example.txt",
+            "inputs/b_lovely_landscapes.txt",
+            "inputs/c_memorable_moments.txt",
+            "inputs/d_pet_pictures.txt",
+            "inputs/e_shiny_selfies.txt",
+    )
     description = "Hashcode output generation"
     main = project.mainClassName
     classpath = sourceSets.main.runtimeClasspath
