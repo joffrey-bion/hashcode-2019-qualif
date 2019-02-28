@@ -70,7 +70,7 @@ class Problem(
     data class EvaluatedSlide(val slide: Slide, val points: Int)
 
     private fun computePoints(s1: Slide, s2: Slide): Int {
-        val intersect = s1.tags - s2.tags
+        val intersect = s1.tags.intersect(s2.tags)
         val uniqueS1 = s1.tags.size - intersect.size
         val uniqueS2 = s2.tags.size - intersect.size
         return intersect.size.coerceAtMost(uniqueS1).coerceAtMost(uniqueS2)
